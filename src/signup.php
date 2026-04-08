@@ -10,6 +10,10 @@
     $p_sswd  = $_POST ['psswd'];
     $enc_pass = md5($p_sswd);
 
+    // FEATURE 3: Registro atomico en Local y Supabase
+    pg_query($local_conn, "BEGIN");
+    pg_query($supa_conn,  "BEGIN");
+
     //Query to insert into SQL
     $sql = "INSERT INTO users (firstname, lastname, email, mobile_phone, psswd)
                
@@ -17,12 +21,17 @@
                
 
     //Execute query
-    $enviar=pg_query($sql);
+    $local_result = pg_query($local_conn, $sql);
+    $supa_result  = pg_query($supa_conn,  $sql);
 
-    if(!$enviar){
-        echo "Error al conectar con la BD";
-    }else{
-        echo "Registrado Exitosamente!";
+    if ($local_result && $supa_result) {
+        pg_query($local_conn, "COMMIT");
+        pg_query($supa_conn,  "COMMIT");
+        echo "Registrado Exitosamente en ambas bases de datos!";
+    } else {
+        pg_query($local_conn, "ROLLBACK");
+        pg_query($supa_conn,  "ROLLBACK");
+        echo "Error: El registro fallo. Se deshicieron los cambios en ambas bases de datos.";
     }
 
 
