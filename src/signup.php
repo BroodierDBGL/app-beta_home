@@ -10,18 +10,20 @@
     $p_sswd  = $_POST ['psswd'];
     $enc_pass = md5($p_sswd);
 
+    // FEATURE 4: Hasheo seguro con bcrypt en lugar de MD5
+    $enc_pass = password_hash($p_sswd, PASSWORD_BCRYPT);
+
     //Query to insert into SQL
     $sql = "INSERT INTO users (firstname, lastname, email, mobile_phone, psswd)
                
                values('$f_name', '$l_name', '$e_mail','$m_phone','$enc_pass')";  //values('Pablo', 'Tomson', 'tom@mail.com','300777000','123')";
                
 
-    //Execute query
-    $enviar=pg_query($sql);
+    $result = pg_query($local_conn, $sql);
 
-    if(!$enviar){
-        echo "Error al conectar con la BD";
-    }else{
+    if (!$result) {
+        echo "Error al registrar el usuario.";
+    } else {
         echo "Registrado Exitosamente!";
     }
 
