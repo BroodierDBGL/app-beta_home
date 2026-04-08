@@ -10,6 +10,14 @@
     $p_sswd  = $_POST ['psswd'];
     $enc_pass = md5($p_sswd);
 
+    // FEATURE 2: Validar unicidad del celular
+    $phone_check = pg_query($local_conn, "SELECT id FROM users WHERE mobile_phone = '$m_phone'");
+
+    if (pg_num_rows($phone_check) > 0) {
+        echo "Error: El celular '$m_phone' ya esta registrado. Use un numero diferente.";
+        exit();
+    }
+
     //Query to insert into SQL
     $sql = "INSERT INTO users (firstname, lastname, email, mobile_phone, psswd)
                
@@ -17,11 +25,11 @@
                
 
     //Execute query
-    $enviar=pg_query($sql);
+    $result = pg_query($local_conn, $sql);
 
-    if(!$enviar){
-        echo "Error al conectar con la BD";
-    }else{
+    if (!$result) {
+        echo "Error al registrar el usuario.";
+    } else {
         echo "Registrado Exitosamente!";
     }
 
