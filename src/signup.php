@@ -10,6 +10,14 @@
     $p_sswd  = $_POST ['psswd'];
     $enc_pass = md5($p_sswd);
 
+    // FEATURE 1: Validar unicidad del email
+    $email_check = pg_query($local_conn, "SELECT id FROM users WHERE email = '$e_mail'");
+
+    if (pg_num_rows($email_check) > 0) {
+        echo "Error: El correo '$e_mail' ya esta registrado. Use un correo diferente.";
+        exit();
+    }
+
     //Query to insert into SQL
     $sql = "INSERT INTO users (firstname, lastname, email, mobile_phone, psswd)
                
@@ -17,14 +25,13 @@
                
 
     //Execute query
-    $enviar=pg_query($sql);
+    $result = pg_query($local_conn, $sql);
 
-    if(!$enviar){
-        echo "Error al conectar con la BD";
-    }else{
+    if (!$result) {
+        echo "Error al registrar el usuario.";
+    } else {
         echo "Registrado Exitosamente!";
     }
-
 
     //Para comprobar se usa postman
 
